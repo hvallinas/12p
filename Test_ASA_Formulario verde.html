@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test ASA</title>
+  <style>
+    body {
+      font-family: 'Century Gothic', sans-serif;
+      background-color: #fefefe;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+    }
+
+    h1 {
+      text-align: center ;
+    }
+
+    .question {
+      display: none;
+    }
+
+    .question.active {
+      display: block;
+    }
+
+    .question p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      min-height: 80px;
+    }
+
+    .options {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .options label {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 1rem;
+      border-radius: 25px;
+      background-color: #E0EDE8;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .options label:hover {
+      background-color: #6CBA9F ;
+    }
+
+    .options input[type="radio"] {
+      display: none;
+    }
+
+    .progress {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    .result {
+      display: none;
+      font-size: 1.1rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .result p {
+      padding: 1rem;
+      border-left: 5px solid;
+      border-radius: 5px;
+    }
+
+    .result.green p {
+      background-color: #e9fce9;
+      border-color: #4caf50;
+    }
+
+    .result.orange p {
+      background-color: #fff3e0;
+      border-color: #ff9800;
+    }
+
+    .result.red p {
+      background-color: #fdecea;
+      border-color: #f44336;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      background-color: #6CBA9F ;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #6CBA9F;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>¿Crees que eres Adicto al Sexo?</h1>
+    <p style="text-align:center; color: #6CBA9F">Adictos al Sexo Anónimos</p>
+
+    <form id="quiz-form"></form>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const questions = [
+      "1. ¿Guardas secretos sobre tu comportamiento sexual o fantasías románticas de las personas importantes para ti? ¿Llevas una doble vida?",
+      "2. ¿Tus deseos te han llevado a tener relaciones sexuales en lugares o con personas que normalmente no elegirías?",
+      "3. ¿Necesitas mayor variedad, mayor frecuencia o actividades sexuales más extremas para lograr el mismo nivel de excitación o alivio?",
+      "4. ¿Tu uso de la pornografía ocupa grandes cantidades de tiempo y/o pone en peligro sus relaciones importantes o su empleo?",
+      "5. ¿Tus relaciones se distorsionan con la preocupación sexual? ¿Cada nueva relación tiene el mismo patrón destructivo que te llevó a dejar la última?",
+      "6. ¿Con frecuencia deseas alejarte de tu pareja después de tener relaciones sexuales? ¿Sientes remordimiento, vergüenza o culpa después de un encuentro sexual?",
+      "7. ¿Tus prácticas sexuales te han causado problemas legales? ¿Tus prácticas sexuales podrían causarte problemas legales?",
+      "8. ¿Tu búsqueda de sexo o fantasías sexuales entra en conflicto con tus estándares morales o interfiere con tu viaje espiritual personal?",
+      "9. ¿Tus actividades sexuales implican coerción, violencia o la amenaza de enfermedades?",
+      "10. ¿Alguna vez tu comportamiento sexual o tu búsqueda de relaciones sexuales te han dejado sintiéndote desesperanzado, alienado de los demás o suicida?",
+      "11. ¿Tu preocupación por las fantasías sexuales te causa problemas en alguna área de tu vida, incluso cuando no llevas a cabo tus fantasías?",
+      "12. ¿Evitas compulsivamente la actividad sexual por miedo al sexo o a la intimidad? ¿Tu evitación sexual te consume mentalmente?"
+    ];
+
+    const form = document.getElementById("quiz-form");
+    const result = document.getElementById("result");
+    let current = 0;
+    let score = 0;
+    const answers = Array(questions.length).fill(null);
+
+    function renderQuestion(index) {
+      form.innerHTML = "";
+
+      if (index >= questions.length) {
+        showResult();
+        return;
+      }
+
+      const div = document.createElement("div");
+      div.classList.add("question", "active");
+
+      const question = document.createElement("p");
+      question.textContent = questions[index];
+
+      const options = document.createElement("div");
+      options.classList.add("options");
+      options.innerHTML = `
+        <label><input type="radio" name="q${index}" value="yes">Sí</label>
+        <label><input type="radio" name="q${index}" value="no">No</label>
+      `;
+
+      options.querySelectorAll("input").forEach(input => {
+        input.addEventListener("change", () => {
+          answers[current] = input.value;
+          current++;
+          renderQuestion(current);
+        });
+      });
+
+      const progress = document.createElement("div");
+      progress.classList.add("progress");
+      progress.textContent = `${index + 1} / ${questions.length}`;
+
+      const btnGroup = document.createElement("div");
+      btnGroup.classList.add("btn-group");
+
+      const backBtn = document.createElement("button");
+      backBtn.textContent = "Anterior";
+      backBtn.type = "button";
+      backBtn.onclick = () => {
+        if (current > 0) {
+          current--;
+          renderQuestion(current);
+        }
+      };
+
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "Siguiente";
+      nextBtn.type = "button";
+      nextBtn.onclick = () => {
+        current++;
+        renderQuestion(current);
+      };
+
+      btnGroup.appendChild(backBtn);
+      btnGroup.appendChild(nextBtn);
+
+      div.appendChild(question);
+      div.appendChild(options);
+      div.appendChild(progress);
+      div.appendChild(btnGroup);
+      form.appendChild(div);
+    }
+
+    function showResult() {
+      form.style.display = "none";
+      score = answers.filter(a => a === "yes").length;
+
+      let message = "";
+      let resultClass = "";
+      if (score === 0) {
+        message = "No se detectan señales preocupantes. Aun así, seguir explorando tu bienestar es valioso.";
+        resultClass = "green";
+      } else if (score <= 3) {
+        message = "Puede haber algunos patrones que merecen tu atención.";
+        resultClass = "orange";
+      } else {
+        message = "Tus respuestas podrían reflejar comportamientos compulsivos. ASA puede ayudarte.";
+        resultClass = "red";
+      }
+      result.className = `result ${resultClass}`;
+      result.innerHTML = `<p>Respondiste afirmativamente ${score} de ${questions.length}<br><br>${message}</p>
+      <button onclick="location.reload()">Reiniciar el test</button>`;
+      result.style.display = "block";
+    }
+
+    renderQuestion(current);
+  </script>
+</body>
+</html>
